@@ -11,8 +11,11 @@ Currently has the following datasets:
 
 import torch
 from torch.utils.data import Dataset, DataLoader
+import torchvision
+import torchvision.transforms as transforms
+from torchvision.datasets import MNIST, CIFAR10
 
-from constants import DEVICE, NUM_WORKERS
+from constants import DEVICE, N_WORKERS
 
 
 def get_data_loader(dataset_name, mode, batch_size=100):
