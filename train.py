@@ -5,7 +5,7 @@ Training loop, saves the model into ./saved_models
 
 from args import parse_args
 from models import get_model
-from dataloaders import get_data_loader
+from datasets import get_data_loader
 
 from constants import DEVICE
 
@@ -35,9 +35,9 @@ def validate(model, data, crit, opt, scheduler):
 if __name__=="__main__":
     args = parse_args()
     model = get_model(args.model_name)
-    train_dataloader = get_data_loader(args.dataset, "train", 
+    train_dataloader = get_data_loader(args.dataset, True, 
                                        batch_size=args.batch_size)
-    val_dataloader = get_data_loader(args.dataset, "val", 
+    val_dataloader = get_data_loader(args.dataset, False, 
                                      batch_size=args.batch_size)
 
     # stuff that could be adjusted

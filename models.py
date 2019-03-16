@@ -27,22 +27,25 @@ act_decode = {"relu": partial(nn.ReLU, inplace=True),
 
 
 model_settings = {
-                "debug": {"input_size": 28 * 28,
-                         "size_list": [100, 10],
+                "debug": {"input_size": 5,
+                         "sizes_list": [3, 2],
+                         "activations_list": ["relu", "relu"]},
+                "debug2": {"input_size": 28 * 28,
+                         "sizes_list": [100, 10],
                          "activations_list": ["relu", "relu"]},
                 "large_max": {"input_size": None,
-                              "size_list": [None],
+                              "sizes_list": [None],
                               "activations_list": [None]},
                 "equal_sizes": {"input_size": None,
-                              "size_list": [None],
+                              "sizes_list": [None],
                               "activations_list": [None]},
                 "long": {"input_size": None,
-                        "size_list": [None],
+                        "sizes_list": [None],
                         "activations_list": [None]}
                 }
 
 class FullyConnectedNN(nn.Module):
-    def __init__(self, input_size, size_list, activations_list):
+    def __init__(self, input_size, sizes_list, activations_list):
         """FF-FCN
         
         A class for all feed-forward FCNs with
@@ -50,15 +53,19 @@ class FullyConnectedNN(nn.Module):
         
         Arguments:
             input_size {int} -- size of input vector
-            size_list {list[int]} -- sizes of hidden neurons
+            sizes_list {list[int]} -- sizes of hidden neurons
             activations_list {list[string]} -- types of activation functions
                                                (can be identity)
         """
         super(FullyConnectedNN, self).__init__()
-        assert len(size_list) == len(activations_list)
+        assert len(sizes_list) == len(activations_list)
+
+        # faster to compute constants in corenet
         self.input_size = input_size
-        in_sizes = [input_size] + size_list[:-1]
-        out_sizes = size_list
+        self.sizes_list = sizes_list
+
+        in_sizes = [input_size] + sizes_list[:-1]
+        out_sizes = sizes_list
         layers = [nn.Linear(n_in, n_out) for (n_in, n_out) in zip(in_sizes, out_sizes)]
         activations = [act_decode[act]() for act in activations_list]
 
@@ -76,6 +83,21 @@ class FullyConnectedNN(nn.Module):
             if isinstance(m, nn.Linear):
                 nn.init.zeros_(m.weight)
                 nn.init.zeros_(m.bias)
+
+    def layers(self):
+        """ Returns an generator over layers """
+        layer_iter = self.net.children()
+        return layer_iter
+
+    def count_nnz(self):
+        """ Counting both weights and biases """
+        count = 0
+        for m in self.layers():
+            # tensor.nonzero().size(0) is convenient for .nnz()
+            if isinstance(m, nn.Linear):
+                count += m.weight.nonzero().size(0)
+                count += m.bias.nonzero().size(0)
+        return count
 
     def forward(self, x):
         x = x.squeeze(1).view(-1, self.input_size)
