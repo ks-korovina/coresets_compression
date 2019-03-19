@@ -27,18 +27,17 @@ def sample_from_dataset(dataset, size):
 
 
 def get_data_loader(dataset_name, is_train, batch_size=100):
-    if dataset_name == "mnist":
-        dataset = get_mnist(is_train)
-        data_loader = DataLoader(dataset, batch_size=batch_size,
-                                 shuffle=is_train, num_workers=N_WORKERS)
-        return data_loader
+    dataset = get_dataset(dataset_name, is_train)
+    data_loader = DataLoader(dataset, batch_size=batch_size,
+                             shuffle=is_train, num_workers=N_WORKERS)
+    return data_loader
 
+
+def get_dataset(dataset_name, is_train):
+    if dataset_name == "mnist":
+        return get_mnist(is_train)
     elif dataset_name == "cifar10":
-        dataset = get_cifar10(is_train)
-        data_loader = DataLoader(dataset, batch_size=batch_size,
-                                 shuffle=is_train, num_workers=N_WORKERS)
-        return data_loader
-    
+        return get_cifar10(is_train)
     else:
         raise ValueError("Unknown dataset {}".format(dataset_name))
 
@@ -51,7 +50,7 @@ def get_mnist(is_train):
     if is_train:
         transform_train = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize((0.1307,), (0.3081,))
+            # transforms.Normalize((0.1307,), (0.3081,))
         ])
         train_data = MNIST(root='./data', train=True, download=True,
                           transform=transform_train)

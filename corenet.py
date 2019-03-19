@@ -1,6 +1,6 @@
 """
 
-Imlements compression strategies:
+Implements compression strategies:
 1. described in https://arxiv.org/pdf/1804.05345.pdf:
 
 - CoreNet
@@ -49,17 +49,19 @@ def sparsify_neuron_corenet(mask, row, eps, delta, inp,
     assert 0 < torch.sum(mask), mask
     sensit = (inp * row * mask).detach().numpy()  # (bs, n_in), (n_in) - broadcast ok
 
-    assert np.all(np.abs(sensit.sum(axis=1)) > 0), sensit.sum(axis=1)
-    sensit = (sensit.T/sensit.sum(axis=1)).max(axis=1)  # [0] - for pytorch
+    assert np.all(np.abs(sensit.sum(axis=1)) > 0), sensit.sum(axis=1)  # denom
+    sensit = ( sensit.T/sensit.sum(axis=1) ).max(axis=1)  # [0] - for pytorch
     sum_sensit = sensit.sum()
     q = sensit / sum_sensit
 
     # Issue: this m is too huge
-    print(sum_sensit, np.log(eta*eta_star),np.log(8*eta/delta), eps**(-2))
+    # print(sum_sensit, np.log(eta*eta_star),np.log(8*eta/delta), eps**(-2))
     m = int(np.ceil(8 * sum_sensit * np.log(eta*eta_star)*np.log(8*eta/delta) / eps**2))
+    # print(m)
     m = 100
     # sample a multiset of neurons with probs q
     # TODO: len(row)
+    assert np.all(q >= 0.), inp  # First-to-second layer sparsification fails
     w_inds = np.random.choice(np.arange(len(row)), size=m, p=q)
     w_new = torch.zeros_like(row)
     # for each ind of neuron, update corresponding w_new_j
@@ -139,7 +141,7 @@ def sparsify_corenet(model, train, eps=0.5, delta=0.5):
                 # sparsify both
                 W_pos = sparsify_neuron_corenet(pos_mask, incoming_conn,
                         eps_ell, delta, input_activations, eta, eta_star)
-                W_neg = sparsify_neuron_corenet(neg_mask, -incoming_conn, 
+                W_neg = sparsify_neuron_corenet(neg_mask, -incoming_conn,
                         eps_ell, delta, input_activations, eta, eta_star)
                 # set i-th row of m_sp
                 m_sp.weight[i, :] = W_pos - W_neg

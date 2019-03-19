@@ -13,6 +13,8 @@ from functools import partial
 import torch
 import torch.nn as nn
 
+from constants import DEVICE
+
 
 def get_model(model_name):
     model_config = model_settings[model_name]
@@ -29,10 +31,10 @@ act_decode = {"relu": partial(nn.ReLU, inplace=True),
 model_settings = {
                 "debug": {"input_size": 5,
                          "sizes_list": [3, 2],
-                         "activations_list": ["relu", "relu"]},
+                         "activations_list": ["relu"]},
                 "debug2": {"input_size": 28 * 28,
                          "sizes_list": [100, 10],
-                         "activations_list": ["relu", "relu"]},
+                         "activations_list": ["relu"]},
                 "large_max": {"input_size": None,
                               "sizes_list": [None],
                               "activations_list": [None]},
@@ -58,7 +60,8 @@ class FullyConnectedNN(nn.Module):
                                                (can be identity)
         """
         super(FullyConnectedNN, self).__init__()
-        assert len(sizes_list) == len(activations_list)
+
+        assert len(sizes_list) == len(activations_list)+1, "last output should not be activated"
 
         # faster to compute constants in corenet
         self.input_size = input_size
@@ -69,7 +72,7 @@ class FullyConnectedNN(nn.Module):
         layers = [nn.Linear(n_in, n_out) for (n_in, n_out) in zip(in_sizes, out_sizes)]
         activations = [act_decode[act]() for act in activations_list]
 
-        self.net = nn.Sequential(*chain(*zip(layers, activations)))
+        self.net = nn.Sequential(layers[0], *chain(*zip(activations, layers[1:])))
         self.initialize()
 
     def initialize(self):
@@ -101,11 +104,17 @@ class FullyConnectedNN(nn.Module):
 
     def forward(self, x):
         x = x.squeeze(1).view(-1, self.input_size)
-        return self.net(x)
+        res = self.net(x)
+        return res
 
     def save(self, check_name, model_dir):
         checkpoint = self.state_dict()
         os.makedirs(model_dir, exist_ok=True)
         torch.save(checkpoint, model_dir+"/{}.pth".format(check_name))
 
+    def load(self, check_name, model_dir):
+        path = model_dir+"/{}.pth".format(check_name)
+        checkpoint = torch.load(path, map_location='cpu')
+        self.to(DEVICE)
+        self.load_state_dict(checkpoint)
 
