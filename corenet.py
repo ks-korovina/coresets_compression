@@ -115,7 +115,7 @@ def sparsify_corenet(model, train, eps=0.5, delta=0.5):
     # sample the set S from Dataset train
     subset_size = int(np.ceil(np.log(8*eta*eta_star/delta)*np.log(eta*eta_star)))
     S = sample_from_dataset(train, subset_size).to(DEVICE)
-
+    print("Subset S of size {}".format(subset_size))
     input_activations = S  # (batch_size, num_input_features)
 
     # 1. triangle-setting forward
