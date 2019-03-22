@@ -77,7 +77,7 @@ def sparsify_neuron_corenet(mask, row, eps, delta, inp,
     # sample a multiset of neurons with probs q
     # TODO: len(row)
     assert np.all(q >= 0.), inp  # First-to-second layer sparsification fails
-    w_inds = np.random.choice(np.arange(len(row)), size=m, p=q, replace=True) 
+    w_inds = np.random.choice(np.arange(len(row)), size=m, p=q) 
     
     ##replace=false added
     
