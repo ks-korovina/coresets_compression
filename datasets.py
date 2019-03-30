@@ -6,6 +6,7 @@ Currently has the following datasets:
 
 """
 
+import os
 import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -47,20 +48,25 @@ def get_debug():
 
 
 def get_mnist(is_train):
+    # for some reason, still loading even if already there
+    do_download = True  #(not os.path.isdir("./data/MNIST/"))
+    # print(os.getcwd()+'/data')
     if is_train:
         transform_train = transforms.Compose([
             transforms.ToTensor(),
             # transforms.Normalize((0.1307,), (0.3081,))
         ])
-        train_data = MNIST(root='./data', train=True, download=True,
-                          transform=transform_train)
+        train_data = MNIST(root='data',
+                           train=True, download=do_download,
+                           transform=transform_train)
         return train_data
 
     transform_test = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
+        # transforms.Normalize((0.1307,), (0.3081,))
     ])
-    val_data = MNIST(root='./data', train=False, download=True,
+    val_data = MNIST(root='data',
+                    train=False, download=do_download,
                     transform=transform_test)
     return val_data
 
@@ -73,7 +79,7 @@ def get_cifar10(is_train):
             transforms.ToTensor(),
             transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
         ])
-        train_data = CIFAR10(root='./data', train=True, download=True,
+        train_data = CIFAR10(root='data', train=True, download=True,
                              transform=transform_train)
         return train_data
 
@@ -81,7 +87,7 @@ def get_cifar10(is_train):
         transforms.ToTensor(),
         transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
     ])
-    val_data = torchvision.datasets.CIFAR10(root='./data', train=False, download=True,
+    val_data = torchvision.datasets.CIFAR10(root='data', train=False, download=True,
                                             transform=transform_test)
     return val_data
 
@@ -97,6 +103,9 @@ class DebugDataset(Dataset):
         return self.xdata[idx], 0
 
 
-
+# if __name__ == "__main__":
+#     ds = get_mnist(False)
+#     print(ds.processed_folder)
+#     print(ds._check_exists())
 
 
