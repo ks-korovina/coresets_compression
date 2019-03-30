@@ -9,7 +9,7 @@ import torch.nn as nn
 from torch.optim import Adam, SGD
 from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR
 
-from args import parse_args
+from args import train_args
 from models import get_model
 from datasets import get_data_loader
 from constants import DEVICE
@@ -20,22 +20,21 @@ def train_epoch(model, data, crit, opt, scheduler):
     running_loss = 0.
     for (xs, ys) in data:
         xs, ys = xs.to(DEVICE), ys.to(DEVICE)
-        opt.zero_grad()
         logits = model(xs)
         loss = crit(logits, ys)
         loss.backward()
         opt.step()
+        opt.zero_grad()
         running_loss += loss.item()
     return running_loss / len(data)
 
 
-def validate(model, data, crit, opt, scheduler):
+def validate(model, data, crit, scheduler=None):
     model.eval()
     running_loss = 0.
     accs = []
     for (xs, ys) in data:
         xs, ys = xs.to(DEVICE), ys.to(DEVICE)
-        opt.zero_grad()
         logits = model(xs)
         # accuracy
         y_pred = logits.argmax(dim=1)
@@ -49,7 +48,7 @@ def validate(model, data, crit, opt, scheduler):
 
 
 if __name__=="__main__":
-    args = parse_args()
+    args = train_args()
     model = get_model(args.model_name)
     train_dataloader = get_data_loader(args.dataset, True, 
                                        batch_size=args.batch_size)
@@ -64,7 +63,7 @@ if __name__=="__main__":
     for epoch in range(args.n_epochs):
         loss = train_epoch(model, train_dataloader, criterion, opt, scheduler)
         print("Finished epoch {}, avg loss {:.3f}".format(epoch+1, loss))
-        val_loss, acc = validate(model, val_dataloader, criterion, opt, scheduler)
+        val_loss, acc = validate(model, val_dataloader, criterion, scheduler)
         print("Validation loss: {}, accuracy: {}".format(val_loss, acc))
         model.save("debug", args.model_dir)
 

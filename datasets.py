@@ -103,9 +103,9 @@ class DebugDataset(Dataset):
         return self.xdata[idx], 0
 
 
-# if __name__ == "__main__":
-#     ds = get_mnist(False)
-#     print(ds.processed_folder)
-#     print(ds._check_exists())
+if __name__ == "__main__":
+    ds = get_mnist(False)
+    print(ds.processed_folder)
+    print(ds._check_exists())
 
 
