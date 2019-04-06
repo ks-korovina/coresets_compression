@@ -22,25 +22,20 @@ from constants import DEVICE
 
 
 def sparsify_neuron_corenet(mask, row, eps, delta, inp,
-                             eta, eta_star):
-    """
-    [Desc]
-    
+                             eta, eta_star, s_sparse):
+    """Sparsify connections to a single neuron.
+
     Arguments:
         mask {torch.FloatTensor} -- mask of active connections, (n_input,)
         row {torch.FloatTensor} -- vector of shape (n_input,)
                         (will be (n_output, n_input) though, later)
-        eps {float} -- [description]
+        eps {float or None} -- float if using true guarantee, else None
         delta {float} -- [description]
         inp {torch.FloatTensor} -- input to current layer ell,
                                    evaluated on set S, hence it
                                    is a vector of size (len(S),)
-
-        #   above inp is a matrix?
-
-
         eta, eta_star -- from enclosing scope
-    
+
     Returns:
         w_new {torch.FloatTensor} -- sparsified connections to neuron
     """
@@ -53,35 +48,29 @@ def sparsify_neuron_corenet(mask, row, eps, delta, inp,
     assert 0 < torch.sum(mask), mask
     sensit = (inp * row * mask).detach().numpy()  # (bs, n_in), (n_in) - broadcast ok
     # assert np.all(np.abs(sensit.sum(axis=1)) > 0), sensit.sum(axis=1)  # denom
-    
+
+    # this raises a warning
     extra_sensit = sensit.T/sensit.sum(axis=1)
-    
     # two lines below assure that there are no Nan values / no need for assert
     where_are_NaNs = np.isnan(extra_sensit)
     extra_sensit[where_are_NaNs] = 0
 
     sensit = extra_sensit.max(axis=1)  # [0] - for pytorch
-
-
-    #sensit[null_indeces] = 0
-    #print(sensit)
     sum_sensit = sensit.sum()
     q = sensit / sum_sensit
 
+    if eps is not None:
+        # Issue: this m is too huge
+        # Issue: eps is nan due to last triangle being nan
+        # print(sum_sensit, np.log(eta*eta_star),np.log(8*eta/delta), eps**(-2))
+        m = int(np.ceil(8 * sum_sensit * np.log(eta*eta_star)*np.log(8*eta/delta) / eps**2))
+    else:
+        m = int(s_sparse * len(row))
 
-    # Issue: this m is too huge
-    # print(sum_sensit, np.log(eta*eta_star),np.log(8*eta/delta), eps**(-2))
-    m = int(np.ceil(8 * sum_sensit * np.log(eta*eta_star)*np.log(8*eta/delta) / eps**2))
-
-    m = 100
     # sample a multiset of neurons with probs q
-    # TODO: len(row)
     assert np.all(q >= 0.), inp  # First-to-second layer sparsification fails
-    w_inds = np.random.choice(np.arange(len(row)), size=m, p=q) 
+    w_inds = np.random.choice(np.arange(len(row)), size=m, p=q)
     
-    ##replace=false added
-    
-    print(np.sum(q[w_inds]))
     w_new = torch.zeros_like(row)
     # for each ind of neuron, update corresponding w_new_j
     for ind in w_inds:
@@ -89,13 +78,27 @@ def sparsify_neuron_corenet(mask, row, eps, delta, inp,
     return w_new
 
 
-def sparsify_corenet(model, train, eps=0.5, delta=0.5):
-    """Base CoreNet function
+def sparsify_corenet(model, train, eps=0.5, delta=0.5, 
+                     use_true_bound=False,
+                     s_sparse=0.3):
+    """Base CoreNet function.
 
-    TODO:
-    * currently implementation does not care about
-      numeric issues or efficiency
+    Arguments:
+        model {torch Module} -- [description]
+        train {torch Dataset} -- [description]
+        s_sparse {float} -- sample eps_sparse * n
+                            connections for every layer
+                            of size n
 
+    Keyword Arguments:
+        eps {number} -- [description] (default: {0.5})
+        delta {number} -- [description] (default: {0.5})
+        use_true_bound {bool} -- whether to compute the m(eps,delta)
+                                true upper bound or use provided one
+                                (default: {False})
+
+    Returns:
+        [torch Module] -- sparsified Model
     """
     sparse_model = deepcopy(model)
     sparse_model.zero_weights()
@@ -104,8 +107,7 @@ def sparsify_corenet(model, train, eps=0.5, delta=0.5):
     n_hidden = len(model.sizes_list)  # = L-1
     eps_prime = 0.5 * eps / n_hidden
     eta = sum(model.sizes_list)     
-    
-    ### changed max to sum
+
     eta_star = max(model.sizes_list[:-1])
 
     lambda_star = np.log(eta * eta_star) / 2
@@ -115,87 +117,66 @@ def sparsify_corenet(model, train, eps=0.5, delta=0.5):
     # sample the set S from Dataset train
     subset_size = int(np.ceil(np.log(8*eta*eta_star/delta)*np.log(eta*eta_star)))
     S = sample_from_dataset(train, subset_size).to(DEVICE)
+
     print("Subset S of size {}".format(subset_size))
     input_activations = S  # (batch_size, num_input_features)
 
     # 1. triangle-setting forward
-    triangles = []
-    for m in model.layers():
-        print("First layer:", m)
-        if isinstance(m, nn.Linear):
-            # shape (batch_size, n_out)
+    if use_true_bound:
+        triangles = []
+        for m in model.layers():
+            if isinstance(m, nn.Linear):
+                # shape (batch_size, n_out)
+                triangle_num = input_activations.abs().matmul(m.weight.transpose(0,1).abs())
+                triangle_denom = input_activations.matmul(m.weight.transpose(0,1)).abs()
 
-            triangle_num = input_activations.abs().matmul(m.weight.transpose(0,1).abs())
-            triangle_denom = input_activations.matmul(m.weight.transpose(0,1)).abs()
+                # Issue: if all previous activations died, div by denom leads to nans
+                assert torch.all(triangle_denom.abs() > 0), input_activations
+                triangle = (triangle_num / triangle_denom).mean(dim=0).max() + kappa
+                triangles.append(triangle.detach().numpy())
 
-            # Issue: if all previous activations died, div by denom leads to nans
-            assert torch.all(triangle_denom.abs() > 0), input_activations
-            triangle = (triangle_num / triangle_denom).mean(dim=0).max() + kappa
-            triangles.append(triangle.detach().numpy())
+                input_activations = m(input_activations)
+            else:
+                # TODO: add a check that this is an activation
+                input_activations = m(input_activations)
 
-            input_activations = m(input_activations)
-        else:
-            # TODO: add a check that this is an activation
-            input_activations = m(input_activations)
-
-        # else:
-        #     raise NotImplementedError("{} is not supported yet".format(m))
-
-    print("Triangles:", triangles)
+        assert not np.isnan(triangles[-1])
 
     # 2. sparsification forward
     # reset
     input_activations = S  # (batch_size, num_input_features)
     ell = 0
     for m, m_sp in zip(model.layers(), sparse_model.layers()):
-        print("Second loop:", m)
         if isinstance(m, nn.Linear):
-            # shape (batch_size, n_out)
-            triangle_forward = np.prod(triangles[ell:])
-            eps_ell = eps_prime / triangle_forward 
             n_out = m.out_features
+
+            eps_ell = None
+            if use_true_bound:
+                triangle_forward = np.prod(triangles[ell:])
+                eps_ell = eps_prime / triangle_forward
+
             # for every neuron do (TODO: vectorize this loop,
             # most likely it will take nothing more then removing for)
             for i in range(n_out):
                 incoming_conn = m.weight[i, :]  # all connections to i-th neuron
                 pos_mask, neg_mask = incoming_conn.gt(0).float(), (1-incoming_conn.gt(0)).float()
-                # sparsify both
 
+                # sparsify both
                 W_pos = sparsify_neuron_corenet(pos_mask, incoming_conn,
-                        eps_ell, delta, input_activations, eta, eta_star)
+                        eps_ell, delta, input_activations, eta, eta_star,
+                        s_sparse)
                 W_neg = sparsify_neuron_corenet(neg_mask, -incoming_conn,
-                        eps_ell, delta, input_activations, eta, eta_star)
+                        eps_ell, delta, input_activations, eta, eta_star,
+                        s_sparse)
+
                 # set i-th row of m_sp
                 m_sp.weight[i, :] = W_pos - W_neg
 
             input_activations = m(input_activations)
             ell += 1
-
         else:
             # TODO: add a check that this is an activation
             input_activations = m(input_activations)
 
-        # else:
-        #     raise NotImplementedError("{} is not supported yet".format(m))
-    
     return sparse_model
-
-
-if __name__ == "__main__":
-    # Testing on an very simple model,
-    # so that everything is computable by hand
-    from models import get_model
-    from datasets import get_debug
-
-    model = get_model("debug")
-    data = get_debug() 
-
-    # For a small MNIST:
-    #model = get_model("debug2")
-    #get_mnist(True)
-
-    sparse_model = sparsify_corenet(model, data)
-
-    print("Nonzero weights in unsparsified model:\t{}".format(model.count_nnz()))
-    print("Nonzero weights in sparsified model:\t{}".format(sparse_model.count_nnz()))
 
