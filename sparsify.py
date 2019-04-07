@@ -7,6 +7,8 @@ TODO:
 
 """
 
+import matplotlib.pyplot as plt
+
 from args import sparsify_args
 from models import get_model
 from datasets import get_data_loader, get_dataset
@@ -32,8 +34,11 @@ if __name__=="__main__":
     print("Sparsification rate:\t{:.3f}".format(post_nnz/pre_nnz))
 
     val = 0.5
-    cov = evaluate_coverage(val, model, sparse_model, val_data, 0.5)
+    max_dev = evaluate_coverage(val, model, sparse_model, val_data, 0.5)
+    cov = (max_dev < val).mean()
     print("Percentage of sampled val pts within {:.3f} relative range: {}".format(val, cov))
+    plt.hist(max_dev, bins=100, range=[0, 10])
+    plt.savefig("./results/max_dev")
 
     pre_acc = evaluate_val_acc(model, val_loader)
     post_acc = evaluate_val_acc(sparse_model, val_loader)

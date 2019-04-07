@@ -20,13 +20,11 @@ def get_model(model_name):
     model_config = model_settings[model_name]
     return FullyConnectedNN(**model_config)
 
-
 act_decode = {"relu": partial(nn.ReLU, inplace=True),
               "tanh": partial(nn.Tanh, inplace=True),
               "sigmoid": partial(nn.Sigmoid, inplace=True),
               "id": (lambda x: x),
               }
-
 
 model_settings = {
                 "debug": {"input_size": 5,
