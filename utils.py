@@ -1,10 +1,6 @@
 """
-Basic utilities for the project:
-
-- Values of upper bounds on sparsity
-- Values of upper bounds on generalization
-- Boring utility functions of little interest
-
+Basic utilities for the project
+@author: kkorovin@cs.cmu.edu
 """
 
 import torch
@@ -15,7 +11,7 @@ from train import validate
 from constants import *
 
 
-def evaluate_coverage(value, model, sparse_model, dataset, sample_rate=0.2):
+def evaluate_coverage(model, sparse_model, dataset, sample_rate=0.2, use_log=False):
 	""" Returns delta_hat - percentage of cases in dataset where
 		sparse model's outputs are within
 		[(1-value)*y_hat, (1+value)*y_hat],
@@ -25,11 +21,11 @@ def evaluate_coverage(value, model, sparse_model, dataset, sample_rate=0.2):
 	sample_size = min(500, int(sample_rate * len(dataset)))
 	S = sample_from_dataset(dataset, sample_size).to(DEVICE)
 
-	sm = nn.LogSoftmax(dim=1)
+	sm = nn.LogSoftmax(dim=1) if use_log else (lambda x: x)
 	model_out  = sm(model(S)).detach().numpy()
 	sparse_out = sm(sparse_model(S)).detach().numpy()
 
-	ratio = np.exp(sparse_out - model_out)
+	ratio = np.exp(sparse_out - model_out) if use_log else sparse_out/model_out
 	max_dev_from_one = np.max(np.abs(ratio - 1), axis=1)
 	# hist =  np.histogram(max_dev_from_one)
 	return max_dev_from_one  #  (max_dev_from_one<value).mean()

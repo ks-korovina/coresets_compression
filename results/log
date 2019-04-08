@@ -1,0 +1,14 @@
+	small_mnist, mnist, 1
+Nonzero weights in unsparsified model:	178110
+Nonzero weights in sparsified model:	89609
+Sparsification rate:	0.503
+Percentage of sampled val pts within 0.500 relative range: 0.004
+Unsparsified model val acc:	0.961
+Sparsified model val acc:	0.935
+	small_mnist, mnist, 0.1
+Nonzero weights in unsparsified model:	178110
+Nonzero weights in sparsified model:	26929
+Sparsification rate:	0.151
+Percentage of sampled val pts within 0.500 relative range: 0.0
+Unsparsified model val acc:	0.963
+Sparsified model val acc:	0.447

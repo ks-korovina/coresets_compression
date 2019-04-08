@@ -27,22 +27,22 @@ act_decode = {"relu": partial(nn.ReLU, inplace=True),
               }
 
 model_settings = {
-                "debug": {"input_size": 5,
-                         "sizes_list": [3, 2],
-                         "activations_list": ["relu"]},
-                "debug2": {"input_size": 28 * 28,
-                         "sizes_list": [200, 100, 10],
-                         "activations_list": ["relu", "relu"]},
-                "large_max": {"input_size": None,
-                              "sizes_list": [None],
-                              "activations_list": [None]},
-                "equal_sizes": {"input_size": None,
-                              "sizes_list": [None],
-                              "activations_list": [None]},
-                "long": {"input_size": None,
-                        "sizes_list": [None],
-                        "activations_list": [None]}
-                }
+                "small_mnist": {"input_size": 28 * 28,
+                                "sizes_list": [200, 100, 10],
+                                "activations_list": ["relu", "relu"]},
+                "large_max_mnist": {"input_size": 28 * 28,
+                                    "sizes_list": [200, 1000, 100, 10],
+                                    "activations_list": ["relu", "relu", "relu"]},
+                "equal_sizes_mnist": {"input_size": 28 * 28,
+                                      "sizes_list": [100, 100, 100, 10],
+                                      "activations_list": ["relu"] * 3},
+                "long_mnist": {"input_size": 28 * 28,
+                               "sizes_list": [100, 200, 200, 100, 10],
+                               "activations_list": ["relu"] * 4},
+                "small_cifar": {"input_size": 32 * 32,
+                               "sizes_list": [100, 200, 200, 10],
+                               "activations_list": ["relu"] * 4}
+}
 
 class FullyConnectedNN(nn.Module):
     def __init__(self, input_size, sizes_list, activations_list):
