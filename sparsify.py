@@ -9,8 +9,8 @@ from args import sparsify_args
 from models import get_model
 from datasets import get_data_loader, get_dataset
 from corenet import sparsify_corenet
-from utils import evaluate_coverage, evaluate_val_acc
-
+from utils import evaluate_coverage, evaluate_val_acc, compute_nnz_svd
+from sparsify_baseline import sparsify_svd
 
 def display_results(exp_header, res, logfile=None):
     """Display results of sparsification experiment
@@ -51,7 +51,7 @@ def display_results(exp_header, res, logfile=None):
     plt.savefig("./results/max_dev")
     plt.clf()
 
-def evaluate_sparsifier(model_name, dataset, check_name, model_dir, sparse, **kwargs):
+def evaluate_sparsifier(model_name, dataset, check_name, model_dir, sparse, method, variance_based, **kwargs):
     """ Run a single sparsification eval and return the result.
         TODO: add a custom sparsification caller.
     """
@@ -63,11 +63,20 @@ def evaluate_sparsifier(model_name, dataset, check_name, model_dir, sparse, **kw
     train_data = get_dataset(dataset, is_train=True)
     val_data   = get_dataset(dataset, is_train=False)
     val_loader = get_data_loader(dataset, is_train=False)
-
-    sparse_model = sparsify_corenet(model, train_data, 
+    
+    if method == "corenet": # two cases to account for different nnz parameters computation 
+        sparse_model = sparsify_corenet(model, train_data, 
                                     s_sparse=sparse)
-    pre_nnz = model.count_nnz()
-    post_nnz = sparse_model.count_nnz()
+        pre_nnz = model.count_nnz()
+        post_nnz = sparse_model.count_nnz()
+    elif method == "svd":
+        #print(variance_based)
+        sparse_model = sparsify_svd(model, sparse, variance_based)
+        pre_nnz = compute_nnz_svd(model)
+        post_nnz = compute_nnz_svd(sparse_model)
+    else:
+        raise("Method not available")
+
 
     max_dev = evaluate_coverage(model, sparse_model, val_data, 0.5)
 
