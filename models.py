@@ -39,9 +39,9 @@ model_settings = {
                 "long_mnist": {"input_size": 28 * 28,
                                "sizes_list": [100, 200, 200, 100, 10],
                                "activations_list": ["relu"] * 4},
-                "small_cifar": {"input_size": 32 * 32,
+                "small_cifar": {"input_size": 3 * 32 * 32,
                                "sizes_list": [100, 200, 200, 10],
-                               "activations_list": ["relu"] * 4}
+                               "activations_list": ["relu"] * 3}
 }
 
 class FullyConnectedNN(nn.Module):
@@ -101,7 +101,7 @@ class FullyConnectedNN(nn.Module):
         return count
 
     def forward(self, x):
-        x = x.squeeze(1).view(-1, self.input_size)
+        x = x.view(-1, self.input_size)
         res = self.net(x)
         return res
 
