@@ -37,3 +37,15 @@ def evaluate_val_acc(model, data):
 
 def estimated_sparsity(model_config, eps, delta):
     raise NotImplementedError("ImplementMe")
+
+
+def compute_nnz_svd(model):
+	nnz = 0
+	tol = 1e-5 # tolerance level for threshold
+	for m in model.layers():
+		if isinstance(m, nn.Linear):
+			m_svd = np.linalg.svd(m.weight.detach().numpy())
+			nnz += (m.weight.shape[0] + m.weight.shape[1]) * ((m_svd[1] > tol).sum())
+			nnz += m.bias.shape[0]
+		
+	return nnz
