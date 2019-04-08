@@ -30,5 +30,7 @@ def sparsify_args():
     # checkpoints
     parser.add_argument("-c", "--check_name", default="default", type=str,
         help="Model checkpoint name to save. Defaults to model_name_dataset")
-    parser.add_argument("--model_dir", default="./checkpoints", type=str)
+    parser.add_argument("--model_dir", default="./checkpoints", type = str)
+    parser.add_argument("-mt", "--method", default = "corenet", type = str)
+    parser.add_argument("-vb", "--variance_based", default = False, type = bool)
     return parser.parse_args()
