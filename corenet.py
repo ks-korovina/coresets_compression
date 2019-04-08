@@ -1,5 +1,4 @@
 """
-
 Implements compression strategies:
 1. described in https://arxiv.org/pdf/1804.05345.pdf:
 
@@ -9,6 +8,8 @@ Implements compression strategies:
 
 2. our own proposed for CNNs
 
+@author: kkorovin@cs.cmu.edu,
+         apodkopa@andrew.cmu.edu
 """
 
 import numpy as np
