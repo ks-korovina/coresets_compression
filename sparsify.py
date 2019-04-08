@@ -47,6 +47,7 @@ def display_results(exp_header, res, logfile=None):
             f.write("Percentage of sampled val pts within {:.3f} relative range: {}\n".format(val, cov))
             f.write("Unsparsified model val acc:\t{:.3f}\n".format(pre_acc))
             f.write("Sparsified model val acc:\t{:.3f}\n".format(post_acc))
+    plt.style.use('ggplot')
     plt.hist(max_dev, bins=100, range=[0, 10])
     plt.savefig("./results/max_dev")
     plt.clf()
