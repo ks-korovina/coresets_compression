@@ -4,6 +4,10 @@ Currently has the following datasets:
 - MNIST
 - CIFAR10
 
+TODO:
+* Do max-min normalization if possible
+  (https://pytorch.org/docs/stable/torchvision/transforms.html)
+
 """
 
 import os
@@ -55,6 +59,7 @@ def get_mnist(is_train):
         transform_train = transforms.Compose([
             transforms.ToTensor(),
             # transforms.Normalize((0.1307,), (0.3081,))
+            transforms.Normalize((0.,), (0.3081,))
         ])
         train_data = MNIST(root='data',
                            train=True, download=do_download,
@@ -64,6 +69,7 @@ def get_mnist(is_train):
     transform_test = transforms.Compose([
         transforms.ToTensor(),
         # transforms.Normalize((0.1307,), (0.3081,))
+        transforms.Normalize((0.,), (0.3081,))
     ])
     val_data = MNIST(root='data',
                     train=False, download=do_download,

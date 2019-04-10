@@ -1,14 +1,195 @@
-	small_mnist, mnist, 1
+------------------------------------------------------------	small_mnist_mnist_0
+	corenet
 Nonzero weights in unsparsified model:	178110
-Nonzero weights in sparsified model:	89609
-Sparsification rate:	0.503
-Percentage of sampled val pts within 0.500 relative range: 0.004
-Unsparsified model val acc:	0.961
-Sparsified model val acc:	0.935
-	small_mnist, mnist, 0.1
+Nonzero weights in sparsified model:	88042
+Sparsification rate:	0.494
+Percentage of sampled val pts within 0.500 relative range: 0.024
+Unsparsified model val acc:	0.969
+Sparsified model val acc:	0.955
+	svd
+Nonzero weights in unsparsified model:	228210
+Nonzero weights in sparsified model:	228210
+Sparsification rate:	1.000
+Percentage of sampled val pts within 0.500 relative range: 0.46
+Unsparsified model val acc:	0.969
+Sparsified model val acc:	0.969
+------------------------------------------------------------	small_mnist_mnist_0
+	corenet
 Nonzero weights in unsparsified model:	178110
-Nonzero weights in sparsified model:	26929
-Sparsification rate:	0.151
+Nonzero weights in sparsified model:	99444
+Sparsification rate:	0.558
+Percentage of sampled val pts within 0.500 relative range: 0.044
+Unsparsified model val acc:	0.969
+Sparsified model val acc:	0.960
+	svd
+Nonzero weights in unsparsified model:	228210
+Nonzero weights in sparsified model:	228210
+Sparsification rate:	1.000
+Percentage of sampled val pts within 0.500 relative range: 0.464
+Unsparsified model val acc:	0.969
+Sparsified model val acc:	0.969
+------------------------------------------------------------	small_mnist_mnist_1
+	corenet
+Nonzero weights in unsparsified model:	178110
+Nonzero weights in sparsified model:	114687
+Sparsification rate:	0.644
+Percentage of sampled val pts within 0.500 relative range: 0.324
+Unsparsified model val acc:	0.969
+Sparsified model val acc:	0.967
+	svd
+Nonzero weights in unsparsified model:	228210
+Nonzero weights in sparsified model:	228210
+Sparsification rate:	1.000
+Percentage of sampled val pts within 0.500 relative range: 0.448
+Unsparsified model val acc:	0.969
+Sparsified model val acc:	0.969
+------------------------------------------------------------	small_mnist_mnist_-3
+	corenet
+Nonzero weights in unsparsified model:	178110
+Nonzero weights in sparsified model:	31419
+Sparsification rate:	0.176
 Percentage of sampled val pts within 0.500 relative range: 0.0
-Unsparsified model val acc:	0.963
-Sparsified model val acc:	0.447
+Unsparsified model val acc:	0.964
+Sparsified model val acc:	0.752
+	svd
+Nonzero weights in unsparsified model:	228210
+Nonzero weights in sparsified model:	28620
+Sparsification rate:	0.125
+Percentage of sampled val pts within 0.500 relative range: 0.0
+Unsparsified model val acc:	0.964
+Sparsified model val acc:	0.098
+------------------------------------------------------------	small_mnist_mnist_-1
+	corenet
+Nonzero weights in unsparsified model:	178110
+Nonzero weights in sparsified model:	70176
+Sparsification rate:	0.394
+Percentage of sampled val pts within 0.500 relative range: 0.002
+Unsparsified model val acc:	0.964
+Sparsified model val acc:	0.901
+	svd
+Nonzero weights in unsparsified model:	228210
+Nonzero weights in sparsified model:	114260
+Sparsification rate:	0.501
+Percentage of sampled val pts within 0.500 relative range: 0.0
+Unsparsified model val acc:	0.964
+Sparsified model val acc:	0.657
+------------------------------------------------------------	small_mnist_mnist_0
+	corenet
+Nonzero weights in unsparsified model:	178110
+Nonzero weights in sparsified model:	86756
+Sparsification rate:	0.487
+Percentage of sampled val pts within 0.500 relative range: 0.022
+Unsparsified model val acc:	0.964
+Sparsified model val acc:	0.944
+	svd
+Nonzero weights in unsparsified model:	228210
+Nonzero weights in sparsified model:	228210
+Sparsification rate:	1.000
+Percentage of sampled val pts within 0.500 relative range: 0.486
+Unsparsified model val acc:	0.964
+Sparsified model val acc:	0.962
+------------------------------------------------------------	small_mnist_mnist_2
+	corenet
+Nonzero weights in unsparsified model:	178110
+Nonzero weights in sparsified model:	104006
+Sparsification rate:	0.584
+Percentage of sampled val pts within 0.500 relative range: 0.152
+Unsparsified model val acc:	0.964
+Sparsified model val acc:	0.947
+	svd
+Nonzero weights in unsparsified model:	228210
+Nonzero weights in sparsified model:	228210
+Sparsification rate:	1.000
+Percentage of sampled val pts within 0.500 relative range: 0.546
+Unsparsified model val acc:	0.964
+Sparsified model val acc:	0.962
+------------------------------------------------------------	small_mnist_mnist_3
+	corenet
+Nonzero weights in unsparsified model:	178110
+Nonzero weights in sparsified model:	106005
+Sparsification rate:	0.595
+Percentage of sampled val pts within 0.500 relative range: 0.286
+Unsparsified model val acc:	0.964
+Sparsified model val acc:	0.959
+	svd
+Nonzero weights in unsparsified model:	228210
+Nonzero weights in sparsified model:	228210
+Sparsification rate:	1.000
+Percentage of sampled val pts within 0.500 relative range: 0.568
+Unsparsified model val acc:	0.964
+Sparsified model val acc:	0.962
+------------------------------------------------------------	small_mnist_mnist_-3
+	corenet
+Nonzero weights in unsparsified model:	178110
+Nonzero weights in sparsified model:	31088
+Sparsification rate:	0.175
+Percentage of sampled val pts within 0.500 relative range: 0.0
+Unsparsified model val acc:	0.937
+Sparsified model val acc:	0.416
+	svd
+Nonzero weights in unsparsified model:	228210
+Nonzero weights in sparsified model:	28620
+Sparsification rate:	0.125
+Percentage of sampled val pts within 0.500 relative range: 0.0
+Unsparsified model val acc:	0.937
+Sparsified model val acc:	0.098
+------------------------------------------------------------	small_mnist_mnist_-1
+	corenet
+Nonzero weights in unsparsified model:	178110
+Nonzero weights in sparsified model:	68362
+Sparsification rate:	0.384
+Percentage of sampled val pts within 0.500 relative range: 0.0
+Unsparsified model val acc:	0.937
+Sparsified model val acc:	0.863
+	svd
+Nonzero weights in unsparsified model:	228210
+Nonzero weights in sparsified model:	114260
+Sparsification rate:	0.501
+Percentage of sampled val pts within 0.500 relative range: 0.0
+Unsparsified model val acc:	0.937
+Sparsified model val acc:	0.625
+------------------------------------------------------------	small_mnist_mnist_0
+	corenet
+Nonzero weights in unsparsified model:	178110
+Nonzero weights in sparsified model:	84727
+Sparsification rate:	0.476
+Percentage of sampled val pts within 0.500 relative range: 0.018
+Unsparsified model val acc:	0.937
+Sparsified model val acc:	0.907
+	svd
+Nonzero weights in unsparsified model:	228210
+Nonzero weights in sparsified model:	228210
+Sparsification rate:	1.000
+Percentage of sampled val pts within 0.500 relative range: 0.414
+Unsparsified model val acc:	0.937
+Sparsified model val acc:	0.931
+------------------------------------------------------------	small_mnist_mnist_2
+	corenet
+Nonzero weights in unsparsified model:	178110
+Nonzero weights in sparsified model:	105662
+Sparsification rate:	0.593
+Percentage of sampled val pts within 0.500 relative range: 0.136
+Unsparsified model val acc:	0.937
+Sparsified model val acc:	0.930
+	svd
+Nonzero weights in unsparsified model:	228210
+Nonzero weights in sparsified model:	228210
+Sparsification rate:	1.000
+Percentage of sampled val pts within 0.500 relative range: 0.45
+Unsparsified model val acc:	0.937
+Sparsified model val acc:	0.931
+------------------------------------------------------------	small_mnist_mnist_3
+	corenet
+Nonzero weights in unsparsified model:	178110
+Nonzero weights in sparsified model:	112456
+Sparsification rate:	0.631
+Percentage of sampled val pts within 0.500 relative range: 0.178
+Unsparsified model val acc:	0.937
+Sparsified model val acc:	0.923
+	svd
+Nonzero weights in unsparsified model:	228210
+Nonzero weights in sparsified model:	228210
+Sparsification rate:	1.000
+Percentage of sampled val pts within 0.500 relative range: 0.41
+Unsparsified model val acc:	0.937
+Sparsified model val acc:	0.931

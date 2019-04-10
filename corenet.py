@@ -51,13 +51,17 @@ def sparsify_neuron_corenet(mask, row, eps, delta, inp,
     # assert np.all(np.abs(sensit.sum(axis=1)) > 0), sensit.sum(axis=1)  # denom
 
     # this raises a warning
+    assert np.any(sensit.sum(axis=1)) > 0, "this will fail miserably"
     extra_sensit = sensit.T/sensit.sum(axis=1)
     # two lines below assure that there are no Nan values / no need for assert
     where_are_NaNs = np.isnan(extra_sensit)
     extra_sensit[where_are_NaNs] = 0
+    assert np.sum(np.isnan(extra_sensit)) == 0
 
     sensit = extra_sensit.max(axis=1)  # [0] - for pytorch
     sum_sensit = sensit.sum()
+
+    assert sum_sensit > 0
     q = sensit / sum_sensit
 
     if eps is not None:
@@ -69,7 +73,10 @@ def sparsify_neuron_corenet(mask, row, eps, delta, inp,
         m = int(s_sparse * len(row))
 
     # sample a multiset of neurons with probs q
-    assert np.all(q >= 0.), inp  # First-to-second layer sparsification fails
+    if not np.all(q >= 0.):  # First-to-second layer sparsification fails
+        print(q)
+        print(inp)
+        raise ValueError("Sampling probabilities should be non-negative")
     w_inds = np.random.choice(np.arange(len(row)), size=m, p=q)
     
     w_new = torch.zeros_like(row)
@@ -160,7 +167,7 @@ def sparsify_corenet(model, train, eps=0.5, delta=0.5,
             # most likely it will take nothing more then removing for)
             for i in range(n_out):
                 incoming_conn = m.weight[i, :]  # all connections to i-th neuron
-                pos_mask, neg_mask = incoming_conn.gt(0).float(), (1-incoming_conn.gt(0)).float()
+                pos_mask, neg_mask = (incoming_conn > 0).float(), (incoming_conn < 0).float()
 
                 # sparsify both
                 W_pos = sparsify_neuron_corenet(pos_mask, incoming_conn,

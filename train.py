@@ -28,6 +28,7 @@ def train_epoch(model, data, crit, opt, scheduler):
         running_loss += loss.item()
     return running_loss / len(data)
 
+
 def validate(model, data, crit, scheduler=None):
     model.eval()
     running_loss = 0.
@@ -44,6 +45,7 @@ def validate(model, data, crit, scheduler=None):
         running_loss += loss.item()
     running_loss /= len(data)
     return running_loss, np.mean(accs)
+
 
 def train_model(model_name, dataset, batch_size, lr, n_epochs, check_name, model_dir, **kwargs):
     if check_name == "default":
