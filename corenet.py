@@ -17,6 +17,7 @@ import torch
 import torch.nn as nn
 
 from copy import deepcopy
+import warnings
 
 from datasets import sample_from_dataset
 from constants import DEVICE
@@ -48,20 +49,20 @@ def sparsify_neuron_corenet(mask, row, eps, delta, inp,
     # For every active input connection, compute its max (normalized) activation
     assert 0 < torch.sum(mask), mask
     sensit = (inp * row * mask).detach().numpy()  # (bs, n_in), (n_in) - broadcast ok
-    # assert np.all(np.abs(sensit.sum(axis=1)) > 0), sensit.sum(axis=1)  # denom
 
-    # this raises a warning
-    assert np.any(sensit.sum(axis=1)) > 0, "this will fail miserably"
-    extra_sensit = sensit.T/sensit.sum(axis=1)
-    # two lines below assure that there are no Nan values / no need for assert
-    where_are_NaNs = np.isnan(extra_sensit)
-    extra_sensit[where_are_NaNs] = 0
-    assert np.sum(np.isnan(extra_sensit)) == 0
+    if np.all(sensit.sum(axis=1) == 0):
+        return torch.zeros_like(row)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        extra_sensit = sensit.T/sensit.sum(axis=1)
+        where_are_NaNs = np.isnan(extra_sensit)
+        extra_sensit[where_are_NaNs] = 0
 
     sensit = extra_sensit.max(axis=1)  # [0] - for pytorch
     sum_sensit = sensit.sum()
 
-    assert sum_sensit > 0
+    # assert sum_sensit > 0
     q = sensit / sum_sensit
 
     if eps is not None:
@@ -73,13 +74,8 @@ def sparsify_neuron_corenet(mask, row, eps, delta, inp,
         m = int(s_sparse * len(row))
 
     # sample a multiset of neurons with probs q
-    if not np.all(q >= 0.):  # First-to-second layer sparsification fails
-        print(q)
-        print(inp)
-        raise ValueError("Sampling probabilities should be non-negative")
-    w_inds = np.random.choice(np.arange(len(row)), size=m, p=q)
-    
     w_new = torch.zeros_like(row)
+    w_inds = np.random.choice(np.arange(len(row)), size=m, p=q)
     # for each ind of neuron, update corresponding w_new_j
     for ind in w_inds:
         w_new[ind] += row[ind]/(m*q[ind])
