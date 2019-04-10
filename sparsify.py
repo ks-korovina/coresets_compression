@@ -49,7 +49,7 @@ def display_results(exp_header, res, logfile=None):
                 f.write("Unsparsified model val acc:\t{:.3f}\n".format(pre_acc))
                 f.write("Sparsified model val acc:\t{:.3f}\n".format(post_acc))
         plt.style.use('ggplot')
-        plt.hist(max_dev, bins=100, range=[0, 10], label=exp_header)
+        plt.hist(max_dev, bins=100, range=[0, 10], label=exp_header, alpha = 0.6)
 
     if logfile is None:
         print("-" * 60)
